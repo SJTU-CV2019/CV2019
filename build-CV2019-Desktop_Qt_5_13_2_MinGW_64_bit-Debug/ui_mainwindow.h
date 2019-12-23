@@ -26,6 +26,9 @@ public:
     QWidget *centralwidget;
     QPushButton *pushButton;
     QLabel *oldpic;
+    QLabel *label;
+    QLabel *label2;
+    QLabel *label_2;
     QMenuBar *menubar;
     QStatusBar *statusbar;
 
@@ -33,7 +36,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(800, 600);
+        MainWindow->resize(1123, 717);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         pushButton = new QPushButton(centralwidget);
@@ -41,11 +44,20 @@ public:
         pushButton->setGeometry(QRect(70, 120, 93, 28));
         oldpic = new QLabel(centralwidget);
         oldpic->setObjectName(QString::fromUtf8("oldpic"));
-        oldpic->setGeometry(QRect(220, 120, 501, 361));
+        oldpic->setGeometry(QRect(170, 40, 311, 231));
+        label = new QLabel(centralwidget);
+        label->setObjectName(QString::fromUtf8("label"));
+        label->setGeometry(QRect(530, 40, 331, 261));
+        label2 = new QLabel(centralwidget);
+        label2->setObjectName(QString::fromUtf8("label2"));
+        label2->setGeometry(QRect(170, 320, 321, 241));
+        label_2 = new QLabel(centralwidget);
+        label_2->setObjectName(QString::fromUtf8("label_2"));
+        label_2->setGeometry(QRect(600, 310, 371, 251));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 800, 26));
+        menubar->setGeometry(QRect(0, 0, 1123, 26));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
@@ -61,6 +73,9 @@ public:
         MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "MainWindow", nullptr));
         pushButton->setText(QCoreApplication::translate("MainWindow", "\346\211\223\345\274\200\345\233\276\347\211\207", nullptr));
         oldpic->setText(QString());
+        label->setText(QString());
+        label2->setText(QString());
+        label_2->setText(QString());
     } // retranslateUi
 
 };
