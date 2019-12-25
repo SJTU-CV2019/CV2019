@@ -6,7 +6,7 @@
 #include <QDebug>
 #include <algorithm>
 #include <vector>
-
+#include <iostream>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -102,7 +102,7 @@ void MainWindow::on_pushButton_clicked()
             circle(out, center, radius, cv::Scalar(255, 50, 0), 3, 8, 0);
         }
 
-        imshow("Output",out);
+
 
 
         laSize=ui->oldpic->size();
@@ -169,6 +169,39 @@ void MainWindow::on_pushButton_2_clicked()
             circle(image, center, 3, cv::Scalar(0, 255, 0), -1, 8, 0);
             //绘制圆轮廓
             circle(image, center, radius, cv::Scalar(255, 50, 0), 3, 8, 0);
+        }
+
+        std::vector<cv::Mat> cuttingcircles;
+        for (size_t i = 0; i < circles.size(); i++)
+        {
+            cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+            int radius = cvRound(circles[i][2]);
+            cv::Mat cuttingimage= cv::Mat(oldimage, cv::Rect(cvRound(circles[i][0])-radius,cvRound(circles[i][1])-radius,2*radius,2*radius)).clone();
+            cuttingcircles.push_back(cuttingimage);
+        }
+        for(size_t i = 0; i < cuttingcircles.size(); i++)
+        {
+            cv::Mat srcImage=cuttingcircles[i];
+            cv::Mat midImage, dstImage;
+            imshow("【原始图】", srcImage);
+
+            cv::cvtColor(srcImage, midImage, cv::COLOR_RGB2GRAY);//转化边缘检测后的图为灰度图
+            GaussianBlur(midImage, midImage, cv::Size(9, 9), 2, 2);
+            std::vector<cv::Vec3f> circles1;
+            HoughCircles(midImage, circles1, cv::HOUGH_GRADIENT, 2, midImage.rows/20, 100, 100, 0, 0);
+            //依次在图中绘制出圆
+            for (size_t i = 0; i < circles1.size(); i++)
+            {
+                cv::Point center(cvRound(circles1[i][0]), cvRound(circles1[i][1]));
+                int radius = cvRound(circles1[i][2]);
+                //绘制圆心
+                circle(srcImage, center, 3, cv::Scalar(0, 255, 0), -1, 8, 0);
+                //绘制圆轮廓
+                circle(srcImage, center, radius, cv::Scalar(155, 50, 255), 3, 8, 0);
+            }
+
+            imshow("【效果图】"+std::to_string(i), srcImage);
+
         }
 
         imshow("Output",image);
