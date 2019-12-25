@@ -10,6 +10,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include "dyeing.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -176,32 +177,32 @@ void MainWindow::on_pushButton_2_clicked()
                 cuttingimage= cv::Mat(oldimage, cv::Rect(cvRound(circles[i][0])-radius,cvRound(circles[i][1])-radius,2*radius,2*radius)).clone();
                 cuttingcircles.push_back(cuttingimage);
             }
-            if((cvRound(circles[i][0])-radius)<=0&&(cvRound(circles[i][1])-radius)>0&&(cvRound(circles[i][0])+radius)<cols&&(cvRound(circles[i][1])+radius)<rows)
+            else if((cvRound(circles[i][0])-radius)<=0&&(cvRound(circles[i][1])-radius)>0&&(cvRound(circles[i][0])+radius)<cols&&(cvRound(circles[i][1])+radius)<rows)
             {
                 cuttingimage= cv::Mat(oldimage, cv::Rect(0,cvRound(circles[i][1])-radius,2*radius,2*radius)).clone();
                 cuttingcircles.push_back(cuttingimage);
             }
-            if((cvRound(circles[i][0])-radius)>0&&(cvRound(circles[i][1])-radius)<=0&&(cvRound(circles[i][0])+radius)<cols&&(cvRound(circles[i][1])+radius)<rows)
+            else if((cvRound(circles[i][0])-radius)>0&&(cvRound(circles[i][1])-radius)<=0&&(cvRound(circles[i][0])+radius)<cols&&(cvRound(circles[i][1])+radius)<rows)
             {
                 cuttingimage= cv::Mat(oldimage, cv::Rect(cvRound(circles[i][0])-radius,0,2*radius,2*radius)).clone();
                 cuttingcircles.push_back(cuttingimage);
             }
-            if((cvRound(circles[i][0])-radius)<=0&&(cvRound(circles[i][1])-radius)<=0&&(cvRound(circles[i][0])+radius)<cols&&(cvRound(circles[i][1])+radius)<rows)
+            else if((cvRound(circles[i][0])-radius)<=0&&(cvRound(circles[i][1])-radius)<=0&&(cvRound(circles[i][0])+radius)<cols&&(cvRound(circles[i][1])+radius)<rows)
             {
                 cuttingimage= cv::Mat(oldimage, cv::Rect(0,0,2*radius,2*radius)).clone();
                 cuttingcircles.push_back(cuttingimage);
             }
-            if((cvRound(circles[i][0])-radius)>0&&(cvRound(circles[i][1])-radius)>0&&(cvRound(circles[i][0])+radius)>=cols&&(cvRound(circles[i][1])+radius)<rows)
+            else if((cvRound(circles[i][0])-radius)>0&&(cvRound(circles[i][1])-radius)>0&&(cvRound(circles[i][0])+radius)>=cols&&(cvRound(circles[i][1])+radius)<rows)
             {
                 cuttingimage= cv::Mat(oldimage, cv::Rect(cvRound(circles[i][0])-radius,cvRound(circles[i][1])-radius,2*radius,rows-cvRound(circles[i][1])+radius-1)).clone();
                 cuttingcircles.push_back(cuttingimage);
             }
-            if((cvRound(circles[i][0])-radius)>0&&(cvRound(circles[i][1])-radius)>0&&(cvRound(circles[i][0])+radius)<cols&&(cvRound(circles[i][1])+radius)>=rows)
+            else if((cvRound(circles[i][0])-radius)>0&&(cvRound(circles[i][1])-radius)>0&&(cvRound(circles[i][0])+radius)<cols&&(cvRound(circles[i][1])+radius)>=rows)
             {
                 cuttingimage= cv::Mat(oldimage, cv::Rect(cvRound(circles[i][0])-radius,cvRound(circles[i][1])-radius,cols-cvRound(circles[i][0])+radius-1,2*radius)).clone();
                 cuttingcircles.push_back(cuttingimage);
             }
-            if((cvRound(circles[i][0])-radius)>0&&(cvRound(circles[i][1])-radius)>0&&(cvRound(circles[i][0])+radius)>=cols&&(cvRound(circles[i][1])+radius)>=rows)
+            else if((cvRound(circles[i][0])-radius)>0&&(cvRound(circles[i][1])-radius)>0&&(cvRound(circles[i][0])+radius)>=cols&&(cvRound(circles[i][1])+radius)>=rows)
             {
                 cuttingimage= cv::Mat(oldimage, cv::Rect(cvRound(circles[i][0])-radius,cvRound(circles[i][1])-radius,cols-cvRound(circles[i][0])+radius-1,rows-cvRound(circles[i][1])+radius-1)).clone();
                 cuttingcircles.push_back(cuttingimage);
@@ -219,6 +220,7 @@ void MainWindow::on_pushButton_2_clicked()
             std::vector<cv::Vec3f> circles1;
             HoughCircles(midImage, circles1, cv::HOUGH_GRADIENT, 2, midImage.rows/20, 100, 100, 0, 0);
             //依次在图中绘制出圆
+            int count  =0;
             for (size_t i = 0; i < circles1.size(); i++)
             {
                 cv::Point center(cvRound(circles1[i][0]), cvRound(circles1[i][1]));
@@ -228,10 +230,11 @@ void MainWindow::on_pushButton_2_clicked()
                     //绘制圆心
                     circle(srcImage, center, 3, cv::Scalar(0, 255, 0), -1, 8, 0);
                     //绘制圆轮廓
+                    count++;
                     circle(srcImage, center, radius, cv::Scalar(155, 50, 255), 3, 8, 0);
                 }
             }
-            if(circles1.size()>=2)
+            if(count>=2)
             {
                 circleattrs.push_back(true);
             }
@@ -244,6 +247,12 @@ void MainWindow::on_pushButton_2_clicked()
         }
 
         imshow("Output",image);
+        cv::Mat dye_img=dyeing(result,circles,circleattrs);
+        QSize laSize=ui->oldpic->size();
+        oPic = QImage((const unsigned char*)dye_img.data, dye_img.cols, dye_img.rows, dye_img.cols*dye_img.channels(), QImage::Format_RGB888);
+        oPic = oPic.scaled(laSize,Qt::IgnoreAspectRatio);
+        ui->oldpic->setPixmap(QPixmap::fromImage(oPic));
+
 
     }
 }
