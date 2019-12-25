@@ -137,12 +137,6 @@ void MainWindow::on_pushButton_2_clicked()
                     channels[1].at<uchar>(i,j) = 0;
                     channels[2].at<uchar>(i,j) = 0;
                 }
-//                else
-//                {
-//                    channels[0].at<uchar>(i,j) = 255;
-//                    channels[1].at<uchar>(i,j) = 255;
-//                    channels[2].at<uchar>(i,j) = 255;
-//                }
             }
         }
         cv::Mat result;
@@ -170,7 +164,7 @@ void MainWindow::on_pushButton_2_clicked()
             //绘制圆轮廓
             circle(image, center, radius, cv::Scalar(255, 50, 0), 3, 8, 0);
         }
-
+        std::vector<bool> circleattrs;
         std::vector<cv::Mat> cuttingcircles;
         for (size_t i = 0; i < circles.size(); i++)
         {
@@ -199,7 +193,14 @@ void MainWindow::on_pushButton_2_clicked()
                 //绘制圆轮廓
                 circle(srcImage, center, radius, cv::Scalar(155, 50, 255), 3, 8, 0);
             }
-
+            if(circles1.size()>=3)
+            {
+                circleattrs.push_back(true);
+            }
+            else
+            {
+                circleattrs.push_back(false);
+            }
             imshow("【效果图】"+std::to_string(i), srcImage);
 
         }
