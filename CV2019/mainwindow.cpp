@@ -121,19 +121,44 @@ void MainWindow::on_pushButton_2_clicked()
     if(!fileFull.isNull())
     {
         oldimage = cv::imread(fileFull.toStdString(), 1);
-        cv::Mat image;
-        cv::cvtColor(oldimage, image, cv::COLOR_BGR2RGB);
+        qDebug() << oldimage.type();
+        cv::Mat image = oldimage.clone();
+        std::vector<cv::Mat> channels;
+        cv::split(oldimage, channels);
+        int rows = oldimage.rows;
+        int cols = oldimage.cols;
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j =0; j < cols; j++)
+            {
+                if(channels[0].at<uchar>(i,j) < 80 && channels[1].at<uchar>(i,j) < 80 && channels[2].at<uchar>(i,j) < 80)
+                {
+                    channels[0].at<uchar>(i,j) = 0;
+                    channels[1].at<uchar>(i,j) = 0;
+                    channels[2].at<uchar>(i,j) = 0;
+                }
+//                else
+//                {
+//                    channels[0].at<uchar>(i,j) = 255;
+//                    channels[1].at<uchar>(i,j) = 255;
+//                    channels[2].at<uchar>(i,j) = 255;
+//                }
+            }
+        }
+        cv::Mat result;
+        cv::merge(channels, result);
+
 
         cv::Mat gray;
-        cv::cvtColor(oldimage, gray, cv::COLOR_BGR2GRAY);
+        cv::cvtColor(result, gray, cv::COLOR_RGB2GRAY);
         cv::Mat arr = gray.clone();
         cv::resize(gray, gray, cv::Size(500,500));
         cv::imshow("gray", gray);
 
-        cv::GaussianBlur(arr, arr, cv::Size(5,5), 3, 3);  //用高斯模糊平滑图像，去除不必要的噪点（如边缘突起）
+        cv::GaussianBlur(arr, arr, cv::Size(3, 3), 3, 3);  //用高斯模糊平滑图像，去除不必要的噪点（如边缘突起）
         cv::imshow("arr", arr);
         std::vector<cv::Vec3f> circles;
-        cv::HoughCircles(arr, circles, cv::HOUGH_GRADIENT, 1, 10, 110, 50, 0, 0);
+        cv::HoughCircles(arr, circles, cv::HOUGH_GRADIENT, 1, arr.rows / 10, 200, 30, 0, 0);
         //霍夫变换找圆， circles中存储圆心和半径
 
         for (size_t i = 0; i < circles.size(); i++)
