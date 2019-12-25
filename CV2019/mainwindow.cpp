@@ -162,7 +162,7 @@ void MainWindow::on_pushButton_2_clicked()
             //绘制圆心
             circle(image, center, 3, cv::Scalar(0, 255, 0), -1, 8, 0);
             //绘制圆轮廓
-            circle(image, center, radius, cv::Scalar(255, 50, 0), 3, 8, 0);
+            circle(image, center, radius, cv::Scalar(255, 30, 0), 3, 8, 0);
         }
         std::vector<bool> circleattrs;
         std::vector<cv::Mat> cuttingcircles;
@@ -183,12 +183,27 @@ void MainWindow::on_pushButton_2_clicked()
             }
             if((cvRound(circles[i][0])-radius)>0&&(cvRound(circles[i][1])-radius)<=0&&(cvRound(circles[i][0])+radius)<cols&&(cvRound(circles[i][1])+radius)<rows)
             {
-                cuttingimage= cv::Mat(oldimage, cv::Rect(0,cvRound(circles[i][1])-radius,2*radius,2*radius)).clone();
+                cuttingimage= cv::Mat(oldimage, cv::Rect(cvRound(circles[i][0])-radius,0,2*radius,2*radius)).clone();
                 cuttingcircles.push_back(cuttingimage);
             }
             if((cvRound(circles[i][0])-radius)<=0&&(cvRound(circles[i][1])-radius)<=0&&(cvRound(circles[i][0])+radius)<cols&&(cvRound(circles[i][1])+radius)<rows)
             {
                 cuttingimage= cv::Mat(oldimage, cv::Rect(0,0,2*radius,2*radius)).clone();
+                cuttingcircles.push_back(cuttingimage);
+            }
+            if((cvRound(circles[i][0])-radius)>0&&(cvRound(circles[i][1])-radius)>0&&(cvRound(circles[i][0])+radius)>=cols&&(cvRound(circles[i][1])+radius)<rows)
+            {
+                cuttingimage= cv::Mat(oldimage, cv::Rect(cvRound(circles[i][0])-radius,cvRound(circles[i][1])-radius,2*radius,rows-cvRound(circles[i][1])+radius-1)).clone();
+                cuttingcircles.push_back(cuttingimage);
+            }
+            if((cvRound(circles[i][0])-radius)>0&&(cvRound(circles[i][1])-radius)>0&&(cvRound(circles[i][0])+radius)<cols&&(cvRound(circles[i][1])+radius)>=rows)
+            {
+                cuttingimage= cv::Mat(oldimage, cv::Rect(cvRound(circles[i][0])-radius,cvRound(circles[i][1])-radius,cols-cvRound(circles[i][0])+radius-1,2*radius)).clone();
+                cuttingcircles.push_back(cuttingimage);
+            }
+            if((cvRound(circles[i][0])-radius)>0&&(cvRound(circles[i][1])-radius)>0&&(cvRound(circles[i][0])+radius)>=cols&&(cvRound(circles[i][1])+radius)>=rows)
+            {
+                cuttingimage= cv::Mat(oldimage, cv::Rect(cvRound(circles[i][0])-radius,cvRound(circles[i][1])-radius,cols-cvRound(circles[i][0])+radius-1,rows-cvRound(circles[i][1])+radius-1)).clone();
                 cuttingcircles.push_back(cuttingimage);
             }
 
