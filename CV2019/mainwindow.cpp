@@ -152,7 +152,7 @@ void MainWindow::on_pushButton_2_clicked()
         cv::GaussianBlur(arr, arr, cv::Size(3, 3), 3, 3);  //用高斯模糊平滑图像，去除不必要的噪点（如边缘突起）
         cv::imshow("arr", arr);
         std::vector<cv::Vec3f> circles;
-        cv::HoughCircles(arr, circles, cv::HOUGH_GRADIENT, 1, arr.rows / 10, 200, 30, 0, 0);
+        cv::HoughCircles(arr, circles, cv::HOUGH_GRADIENT, 1, arr.rows / 10, 200, 50, 0, 0);
         //霍夫变换找圆， circles中存储圆心和半径
 
         for (size_t i = 0; i < circles.size(); i++)
@@ -170,14 +170,18 @@ void MainWindow::on_pushButton_2_clicked()
         {
             cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
             int radius = cvRound(circles[i][2]);
-            cv::Mat cuttingimage= cv::Mat(oldimage, cv::Rect(cvRound(circles[i][0])-radius,cvRound(circles[i][1])-radius,2*radius,2*radius)).clone();
-            cuttingcircles.push_back(cuttingimage);
+            cv::Mat cuttingimage;
+            if((cvRound(circles[i][0])-radius)>0&&(cvRound(circles[i][1])-radius)>0&&(cvRound(circles[i][0])+radius)<cols&&(cvRound(circles[i][1])+radius)<rows)
+            {
+                cuttingimage= cv::Mat(oldimage, cv::Rect(cvRound(circles[i][0])-radius,cvRound(circles[i][1])-radius,2*radius,2*radius)).clone();
+                cuttingcircles.push_back(cuttingimage);
+            }
+
         }
         for(size_t i = 0; i < cuttingcircles.size(); i++)
         {
             cv::Mat srcImage=cuttingcircles[i];
             cv::Mat midImage, dstImage;
-            imshow("【原始图】", srcImage);
 
             cv::cvtColor(srcImage, midImage, cv::COLOR_RGB2GRAY);//转化边缘检测后的图为灰度图
             GaussianBlur(midImage, midImage, cv::Size(9, 9), 2, 2);
@@ -201,7 +205,7 @@ void MainWindow::on_pushButton_2_clicked()
             {
                 circleattrs.push_back(false);
             }
-            imshow("【效果图】"+std::to_string(i), srcImage);
+            imshow("yes"+std::to_string(i), srcImage);
 
         }
 
