@@ -176,6 +176,22 @@ void MainWindow::on_pushButton_2_clicked()
                 cuttingimage= cv::Mat(oldimage, cv::Rect(cvRound(circles[i][0])-radius,cvRound(circles[i][1])-radius,2*radius,2*radius)).clone();
                 cuttingcircles.push_back(cuttingimage);
             }
+            if((cvRound(circles[i][0])-radius)<=0&&(cvRound(circles[i][1])-radius)>0&&(cvRound(circles[i][0])+radius)<cols&&(cvRound(circles[i][1])+radius)<rows)
+            {
+                cuttingimage= cv::Mat(oldimage, cv::Rect(0,cvRound(circles[i][1])-radius,2*radius,2*radius)).clone();
+                cuttingcircles.push_back(cuttingimage);
+            }
+            if((cvRound(circles[i][0])-radius)>0&&(cvRound(circles[i][1])-radius)<=0&&(cvRound(circles[i][0])+radius)<cols&&(cvRound(circles[i][1])+radius)<rows)
+            {
+                cuttingimage= cv::Mat(oldimage, cv::Rect(0,cvRound(circles[i][1])-radius,2*radius,2*radius)).clone();
+                cuttingcircles.push_back(cuttingimage);
+            }
+            if((cvRound(circles[i][0])-radius)<=0&&(cvRound(circles[i][1])-radius)<=0&&(cvRound(circles[i][0])+radius)<cols&&(cvRound(circles[i][1])+radius)<rows)
+            {
+                cuttingimage= cv::Mat(oldimage, cv::Rect(0,0,2*radius,2*radius)).clone();
+                cuttingcircles.push_back(cuttingimage);
+            }
+
 
         }
         for(size_t i = 0; i < cuttingcircles.size(); i++)
@@ -192,12 +208,15 @@ void MainWindow::on_pushButton_2_clicked()
             {
                 cv::Point center(cvRound(circles1[i][0]), cvRound(circles1[i][1]));
                 int radius = cvRound(circles1[i][2]);
-                //绘制圆心
-                circle(srcImage, center, 3, cv::Scalar(0, 255, 0), -1, 8, 0);
-                //绘制圆轮廓
-                circle(srcImage, center, radius, cv::Scalar(155, 50, 255), 3, 8, 0);
+                if((cvRound(circles1[i][0])-radius)>0&&(cvRound(circles1[i][1])-radius)>0&&(cvRound(circles1[i][0])+radius)<srcImage.cols&&(cvRound(circles1[i][1])+radius)<srcImage.rows)
+                {
+                    //绘制圆心
+                    circle(srcImage, center, 3, cv::Scalar(0, 255, 0), -1, 8, 0);
+                    //绘制圆轮廓
+                    circle(srcImage, center, radius, cv::Scalar(155, 50, 255), 3, 8, 0);
+                }
             }
-            if(circles1.size()>=3)
+            if(circles1.size()>=2)
             {
                 circleattrs.push_back(true);
             }
