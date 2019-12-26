@@ -194,6 +194,10 @@ void MainWindow::on_pushButton_2_clicked()
         QVector<QString> info[4];
         cv::Mat dye_img=dyeing(result,circles,circleattrs,info);
 
+        cv::cvtColor(oldimage, oldimage, cv::COLOR_BGR2RGB);
+        cv::cvtColor(dye_img, dye_img, cv::COLOR_BGR2RGB);
+        cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
+
         oPic[0] = QImage((const unsigned char*)dye_img.data, dye_img.cols, dye_img.rows, dye_img.cols*dye_img.channels(), QImage::Format_RGB888);
         oPic[1] = QImage((const unsigned char*)oldimage.data, oldimage.cols, oldimage.rows, oldimage.cols*oldimage.channels(), QImage::Format_RGB888);
         oPic[2] = QImage((const unsigned char*)image.data, image.cols, image.rows, image.cols*image.channels(), QImage::Format_RGB888);
