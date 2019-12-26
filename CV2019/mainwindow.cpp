@@ -17,6 +17,42 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    pos=new QTableWidget();
+    pos->setParent(this);
+    pos->setGeometry(50,110,200,500);
+    pos->setColumnCount(4);
+    pos->setColumnWidth(0, 40);
+    pos->setColumnWidth(1, 40);
+    pos->setColumnWidth(2, 40);
+    pos->setColumnWidth(3, 60);
+    QStringList sListHeader;
+    sListHeader<< "r"<<"x"<<"y" <<"状态";
+    pos->setHorizontalHeaderLabels(sListHeader);
+    pos->show();
+
+    src_img=new QLabel();
+    src_img->show();
+    src_img->setParent(this);
+    src_img->setGeometry(300,100,245,245);
+    src_img->setText("");
+    src_img->show();
+
+    mid_img=new QLabel();
+    mid_img->show();
+    mid_img->setParent(this);
+    mid_img->setGeometry(300,360,245,245);
+    mid_img->setText("");
+    mid_img->show();
+
+    dst_img=new QLabel();
+    dst_img->show();
+    dst_img->setParent(this);
+    dst_img->setGeometry(600,100,500,500);
+    dst_img->setText("");
+    dst_img->show();
+
+
+
 }
 
 MainWindow::~MainWindow()
@@ -24,95 +60,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
-void MainWindow::on_pushButton_clicked()
-{
-    QString fileFull;
-    fileFull = QFileDialog::getOpenFileName(this,tr("file"),"/",tr("text(*.bmp)"));  //获取整个文件名
-
-    if(!fileFull.isNull())
-    {
-        oldimage = cv::imread(fileFull.toStdString(), 1);
-        cv::Mat image;
-        cv::cvtColor(oldimage, image, cv::COLOR_BGR2RGB);
-        //image - RGB
-
-        std::vector<cv::Mat> channels;
-        cv::split(oldimage, channels);
-        int rows = oldimage.rows;
-        int cols = oldimage.cols;
-        for (int i = 0; i < rows; i++)
-        {
-            for (int j =0; j < cols; j++)
-            {
-                if(channels[0].at<uchar>(i,j) < 80 && channels[1].at<uchar>(i,j) < 80 && channels[2].at<uchar>(i,j) < 80)
-                {
-                    channels[0].at<uchar>(i,j) = 0;
-                    channels[1].at<uchar>(i,j) = 0;
-                    channels[2].at<uchar>(i,j) = 0;
-                }
-                else
-                {
-                    channels[0].at<uchar>(i,j) = 255;
-                    channels[1].at<uchar>(i,j) = 255;
-                    channels[2].at<uchar>(i,j) = 255;
-                }
-            }
-        }
-        cv::Mat result;
-        cv::merge(channels, result);
-        //分轨道处理，消除背景影响
-        //cv::medianBlur(result, result,3);
-
-
-        QSize laSize=ui->label->size();
-        QImage label1 = QImage((const unsigned char*)result.data, result.cols, result.rows, result.cols*result.channels(), QImage::Format_RGB888);
-        label1 = label1.scaled(laSize,Qt::IgnoreAspectRatio);
-        ui->label->setPixmap(QPixmap::fromImage(label1));
-        //显示上述处理后图片
-
-        cv::Mat gray, out, out1, out2;
-        cv::cvtColor(result, gray, cv::COLOR_RGB2GRAY);
-        //gray - 灰度图像
-        cv::Canny(gray, out, 5, 250, 3, false);
-//        cv::Sobel(gray, out1, gray.depth(), 1, 0);
-//        cv::Sobel(gray, out2, gray.depth(), 0, 1);
-//        cv::addWeighted(out1, 1, out2, 1, 0.0, out);
-        cv::resize(out, out, cv::Size(500,500));
-        cv::imshow("out", out);
-
-        //out - 边缘处理
-        cv::Mat arr = gray.clone();
-        cv::resize(gray, gray, cv::Size(500,500));
-        cv::imshow("gray", gray);
-
-
-
-        cv::GaussianBlur(arr, arr, cv::Size(5,5), 3, 3);  //用高斯模糊平滑图像，去除不必要的噪点（如边缘突起）
-        std::vector<cv::Vec3f> circles;
-        cv::HoughCircles(arr, circles, cv::HOUGH_GRADIENT, 1, arr.rows/5, 150, 100, 0, 0);
-        //霍夫变换找圆， circles中存储圆心和半径
-
-        for (size_t i = 0; i < circles.size(); i++)
-        {
-            cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-            int radius = cvRound(circles[i][2]);
-            //绘制圆心
-            circle(out, center, 3, cv::Scalar(0, 255, 0), -1, 8, 0);
-            //绘制圆轮廓
-            circle(out, center, radius, cv::Scalar(255, 50, 0), 3, 8, 0);
-        }
-
-
-
-
-        laSize=ui->oldpic->size();
-        oPic = QImage((const unsigned char*)image.data, image.cols, image.rows, image.cols*image.channels(), QImage::Format_RGB888);
-        //namedWindow("1");
-        oPic = oPic.scaled(laSize,Qt::IgnoreAspectRatio);
-        ui->oldpic->setPixmap(QPixmap::fromImage(oPic));
-    }
-}
+#define SHADOW 80
 
 void MainWindow::on_pushButton_2_clicked()
 {
@@ -132,7 +80,7 @@ void MainWindow::on_pushButton_2_clicked()
         {
             for (int j =0; j < cols; j++)
             {
-                if(channels[0].at<uchar>(i,j) < 80 && channels[1].at<uchar>(i,j) < 80 && channels[2].at<uchar>(i,j) < 80)
+                if(channels[0].at<uchar>(i,j) < SHADOW && channels[1].at<uchar>(i,j) <SHADOW  && channels[2].at<uchar>(i,j) < SHADOW)
                 {
                     channels[0].at<uchar>(i,j) = 0;
                     channels[1].at<uchar>(i,j) = 0;
@@ -148,10 +96,8 @@ void MainWindow::on_pushButton_2_clicked()
         cv::cvtColor(result, gray, cv::COLOR_RGB2GRAY);
         cv::Mat arr = gray.clone();
         cv::resize(gray, gray, cv::Size(500,500));
-        cv::imshow("gray", gray);
 
         cv::GaussianBlur(arr, arr, cv::Size(3, 3), 3, 3);  //用高斯模糊平滑图像，去除不必要的噪点（如边缘突起）
-        cv::imshow("arr", arr);
         std::vector<cv::Vec3f> circles;
         cv::HoughCircles(arr, circles, cv::HOUGH_GRADIENT, 1, arr.rows / 10, 200, 50, 0, 0);
         //霍夫变换找圆， circles中存储圆心和半径
@@ -242,16 +188,35 @@ void MainWindow::on_pushButton_2_clicked()
             {
                 circleattrs.push_back(false);
             }
-            imshow("yes"+std::to_string(i), srcImage);
 
         }
 
-        imshow("Output",image);
-        cv::Mat dye_img=dyeing(result,circles,circleattrs);
-        QSize laSize=ui->oldpic->size();
-        oPic = QImage((const unsigned char*)dye_img.data, dye_img.cols, dye_img.rows, dye_img.cols*dye_img.channels(), QImage::Format_RGB888);
-        oPic = oPic.scaled(laSize,Qt::IgnoreAspectRatio);
-        ui->oldpic->setPixmap(QPixmap::fromImage(oPic));
+        QVector<QString> info[4];
+        cv::Mat dye_img=dyeing(result,circles,circleattrs,info);
+
+        oPic[0] = QImage((const unsigned char*)dye_img.data, dye_img.cols, dye_img.rows, dye_img.cols*dye_img.channels(), QImage::Format_RGB888);
+        oPic[1] = QImage((const unsigned char*)oldimage.data, oldimage.cols, oldimage.rows, oldimage.cols*oldimage.channels(), QImage::Format_RGB888);
+        oPic[2] = QImage((const unsigned char*)image.data, image.cols, image.rows, image.cols*image.channels(), QImage::Format_RGB888);
+
+        oPic[0] = oPic[0].scaled(dst_img->size(),Qt::IgnoreAspectRatio);
+        oPic[1] = oPic[1].scaled(src_img->size(),Qt::IgnoreAspectRatio);
+        oPic[2] = oPic[2].scaled(mid_img->size(),Qt::IgnoreAspectRatio);
+        dst_img->setPixmap(QPixmap::fromImage(oPic[0]));
+        src_img->setPixmap(QPixmap::fromImage(oPic[1]));
+        mid_img->setPixmap(QPixmap::fromImage(oPic[2]));
+
+        //QVector<int>::iterator iter[4];
+        int len=info[0].size();
+        pos->clearContents();
+        for(int i=0;i<len;i++){
+            int iRow =pos->rowCount();
+            if(iRow<i+1)pos->setRowCount(iRow + 1);
+            pos->setItem(i,0,new QTableWidgetItem(info[0][i]));
+            pos->setItem(i,1,new QTableWidgetItem(info[1][i]));
+            pos->setItem(i,2,new QTableWidgetItem(info[2][i]));
+            pos->setItem(i,3,new QTableWidgetItem(info[3][i]));
+        }
+
 
 
     }

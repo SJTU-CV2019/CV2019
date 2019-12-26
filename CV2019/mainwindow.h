@@ -6,6 +6,9 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <QPushButton>
+#include <QLabel>
+#include <QTableWidget>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -20,11 +23,14 @@ public:
     ~MainWindow();
 
     cv::Mat oldimage;
-    QImage oPic;
+    QImage oPic[3];
+    QLabel* src_img;
+    QLabel* mid_img;
+    QLabel* dst_img;
+    QTableWidget* pos;
 
 private slots:
-    void on_pushButton_clicked();
-
+    //void on_pushButton_clicked();
     void on_pushButton_2_clicked();
 
 private:
