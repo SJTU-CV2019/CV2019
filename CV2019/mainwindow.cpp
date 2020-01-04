@@ -164,7 +164,7 @@ void MainWindow::on_pushButton_2_clicked()
             cv::cvtColor(srcImage, midImage, cv::COLOR_RGB2GRAY);//转化边缘检测后的图为灰度图
             GaussianBlur(midImage, midImage, cv::Size(9, 9), 2, 2);
             std::vector<cv::Vec3f> circles1;
-            HoughCircles(midImage, circles1, cv::HOUGH_GRADIENT, 2, midImage.rows/20, 100, 100, 0, 0);
+            HoughCircles(midImage, circles1, cv::HOUGH_GRADIENT, 2, midImage.rows/20, 100, 80, 0, 0);
             //依次在图中绘制出圆
             int count  =0;
             for (size_t i = 0; i < circles1.size(); i++)
